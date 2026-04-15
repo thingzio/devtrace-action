@@ -1,0 +1,38 @@
+name: 'DevTrace PR Check'
+description: 'Score PR contributor trustworthiness using DevTrace'
+author: 'thingzio'
+
+inputs:
+  token:
+    description: 'DevTrace API token (dt_ prefix)'
+    required: true
+  min-score:
+    description: 'Minimum score threshold (0.0-1.0). Enables check run with pass/fail.'
+    required: false
+  repo:
+    description: 'Repository for scoring context (owner/repo)'
+    required: false
+    default: '${{ github.repository }}'
+  trusted-orgs:
+    description: 'Comma-separated trusted organization slugs'
+    required: false
+  api-url:
+    description: 'DevTrace API base URL'
+    required: false
+    default: 'https://devtrace.thingz.io'
+
+outputs:
+  score:
+    description: 'Numeric score (0.0-1.0)'
+  grade:
+    description: 'Letter grade (A+ through F)'
+  risk-summary:
+    description: 'Risk summary text'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+
+branding:
+  icon: 'shield'
+  color: 'blue'
