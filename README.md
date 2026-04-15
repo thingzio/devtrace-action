@@ -1,6 +1,19 @@
 # DevTrace GitHub Action
 
-Score PR contributor trustworthiness using [DevTrace](https://devtrace.thingz.io). Posts a trust score comment on pull requests and optionally enforces a minimum score threshold.
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-DevTrace-blue.svg)](https://github.com/marketplace/actions/devtrace)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+**Automate PR risk assessment by scoring contributor trustworthiness with [DevTrace APIs](https://devtrace.thingz.io).** This action automatically evaluates pull request authors, posts a detailed trust score comment directly on the PR, and can optionally enforce a minimum score threshold to block risky merges.
+
+## Why DevTrace?
+
+Recent supply chain attacks—like the `xz-utils` backdoor—have proven that contributor trust is the weakest link in open-source security. DevTrace shifts risk analysis left, surfacing potential threats *before* a single line of code is merged. 
+
+By integrating DevTrace into your CI/CD workflow, every contribution is instantly evaluated against:
+
+* **23+ Trust Signals:** Spanning identity, engagement, community standing, and code provenance.
+* **Behavioral Analysis:** Detects anomalous or suspicious contributor patterns.
+* **AI-Powered Risk Scoring:** Gives maintainers clear, actionable context to make informed review decisions.
 
 ## Quick Start
 
