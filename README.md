@@ -18,8 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: thingzio/devtrace-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           token: ${{ secrets.DEVTRACE_TOKEN }}
 ```
@@ -33,6 +31,7 @@ jobs:
 | `repo` | No | Current repo | Repository context for scoring (`owner/repo`). |
 | `trusted-orgs` | No | — | Comma-separated GitHub org slugs to mark as trusted. |
 | `api-url` | No | `https://devtrace.thingz.io` | DevTrace API base URL. |
+| `github-token` | No | `${{ github.token }}` | GitHub token for PR comments and check runs. |
 
 ## Outputs
 
@@ -48,8 +47,6 @@ jobs:
 
 ```yaml
 - uses: thingzio/devtrace-action@v1
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   with:
     token: ${{ secrets.DEVTRACE_TOKEN }}
     min-score: '0.5'
@@ -61,8 +58,6 @@ Add `DevTrace Score` as a required check in your branch protection settings to b
 
 ```yaml
 - uses: thingzio/devtrace-action@v1
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   with:
     token: ${{ secrets.DEVTRACE_TOKEN }}
     trusted-orgs: 'my-org,partner-org'
@@ -84,7 +79,7 @@ Add `DevTrace Score` as a required check in your branch protection settings to b
 
 ## How It Works
 
-1. Extracts all commit authors from the pull request
+1. Extracts the PR opener and all commit authors from the pull request
 2. Scores each author via the [DevTrace API](https://devtrace.thingz.io)
 3. Posts (or updates) a single PR comment with scores and risk summaries
 4. If `min-score` is set, creates a GitHub Check Run with pass/fail status
@@ -98,7 +93,7 @@ Bot authors (score 0, grade F) are automatically excluded from threshold checks.
 | `pull-requests: write` | Always (to post comments) |
 | `checks: write` | When `min-score` is set (to create check runs) |
 
-The action uses `GITHUB_TOKEN` for GitHub API calls (comments, check runs) and your DevTrace `token` for scoring API calls.
+The `github-token` input defaults to `${{ github.token }}` — no manual configuration needed. Your DevTrace `token` is used for scoring API calls.
 
 ## License
 

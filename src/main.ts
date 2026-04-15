@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { fetchScore, APIError } from './api'
 import { formatComment, AuthorResult, COMMENT_MARKER } from './comment'
-import { evaluateThreshold } from './check'
+import { evaluateThreshold, CheckResult } from './check'
 
 async function run(): Promise<void> {
   try {
@@ -29,10 +29,14 @@ async function run(): Promise<void> {
     }
 
     const prNumber = context.payload.pull_request.number
-    const ghToken = process.env.GITHUB_TOKEN ?? ''
+    const ghToken = core.getInput('github-token')
+    if (!ghToken) {
+      core.setFailed('github-token is required for PR comments and check runs')
+      return
+    }
     const octokit = github.getOctokit(ghToken)
 
-    // Get unique commit authors for this PR
+    // Get PR opener + unique commit authors
     const authors = await getAuthors(octokit, context, prNumber)
     if (authors.length === 0) {
       core.warning('No commit authors found on this PR')
@@ -53,6 +57,10 @@ async function run(): Promise<void> {
         if (err instanceof APIError && err.status === 401) {
           core.setFailed('Invalid DevTrace token')
           return
+        }
+        if (err instanceof APIError && err.status === 404) {
+          results.push({ username, error: 'No score available' })
+          continue
         }
         const msg =
           err instanceof APIError
@@ -94,6 +102,15 @@ async function getAuthors(
   context: typeof github.context,
   prNumber: number,
 ): Promise<string[]> {
+  const authors = new Set<string>()
+
+  // Include PR opener
+  const prAuthor = context.payload.pull_request?.user?.login as string | undefined
+  if (prAuthor) {
+    authors.add(prAuthor)
+  }
+
+  // Include commit authors
   const commits = await octokit.rest.pulls.listCommits({
     owner: context.repo.owner,
     repo: context.repo.repo,
@@ -101,7 +118,6 @@ async function getAuthors(
     per_page: 100,
   })
 
-  const authors = new Set<string>()
   for (const commit of commits.data) {
     const login = commit.author?.login
     if (login) {
@@ -153,7 +169,7 @@ async function upsertComment(
 async function createCheckRun(
   octokit: ReturnType<typeof github.getOctokit>,
   context: typeof github.context,
-  check: { conclusion: string; title: string; summary: string },
+  check: CheckResult,
 ): Promise<void> {
   await octokit.rest.checks.create({
     owner: context.repo.owner,
@@ -161,7 +177,7 @@ async function createCheckRun(
     name: 'DevTrace Score',
     head_sha: context.sha,
     status: 'completed',
-    conclusion: check.conclusion as 'success' | 'failure' | 'neutral',
+    conclusion: check.conclusion,
     output: {
       title: check.title,
       summary: check.summary,

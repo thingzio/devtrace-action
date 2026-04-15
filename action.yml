@@ -20,6 +20,10 @@ inputs:
     description: 'DevTrace API base URL'
     required: false
     default: 'https://devtrace.thingz.io'
+  github-token:
+    description: 'GitHub token for PR comments and check runs'
+    required: false
+    default: '${{ github.token }}'
 
 outputs:
   score:

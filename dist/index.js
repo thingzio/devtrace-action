@@ -30185,9 +30185,13 @@ async function run() {
             return;
         }
         const prNumber = context.payload.pull_request.number;
-        const ghToken = process.env.GITHUB_TOKEN ?? '';
+        const ghToken = core.getInput('github-token');
+        if (!ghToken) {
+            core.setFailed('github-token is required for PR comments and check runs');
+            return;
+        }
         const octokit = github.getOctokit(ghToken);
-        // Get unique commit authors for this PR
+        // Get PR opener + unique commit authors
         const authors = await getAuthors(octokit, context, prNumber);
         if (authors.length === 0) {
             core.warning('No commit authors found on this PR');
@@ -30206,6 +30210,10 @@ async function run() {
                 if (err instanceof api_1.APIError && err.status === 401) {
                     core.setFailed('Invalid DevTrace token');
                     return;
+                }
+                if (err instanceof api_1.APIError && err.status === 404) {
+                    results.push({ username, error: 'No score available' });
+                    continue;
                 }
                 const msg = err instanceof api_1.APIError
                     ? `API error ${err.status}`
@@ -30238,13 +30246,19 @@ async function run() {
     }
 }
 async function getAuthors(octokit, context, prNumber) {
+    const authors = new Set();
+    // Include PR opener
+    const prAuthor = context.payload.pull_request?.user?.login;
+    if (prAuthor) {
+        authors.add(prAuthor);
+    }
+    // Include commit authors
     const commits = await octokit.rest.pulls.listCommits({
         owner: context.repo.owner,
         repo: context.repo.repo,
         pull_number: prNumber,
         per_page: 100,
     });
-    const authors = new Set();
     for (const commit of commits.data) {
         const login = commit.author?.login;
         if (login) {
