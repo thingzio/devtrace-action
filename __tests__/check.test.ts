@@ -13,6 +13,7 @@ function makeResult(
       username,
       provider: 'github',
       score: { grade, value },
+      scoring_mode: 'global',
       scored_at: '2026-04-15T10:00:00Z',
     },
   }

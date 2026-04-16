@@ -31,6 +31,7 @@ describe('fetchScore', () => {
       provider: 'github',
       score: { grade: 'B+', value: 0.78, categories: { identity: 0.19 } },
       risk_summary: 'Established contributor.',
+      scoring_mode: 'repo',
       scored_at: '2026-04-15T10:00:00Z',
     }
     mockFetch.mockResolvedValueOnce(mockResponse(200, body))
@@ -55,6 +56,7 @@ describe('fetchScore', () => {
         username: 'octocat',
         provider: 'github',
         score: { grade: 'B+', value: 0.78 },
+        scoring_mode: 'global',
         scored_at: '2026-04-15T10:00:00Z',
       })
     )
@@ -74,9 +76,39 @@ describe('fetchScore', () => {
     await expect(fetchScore('octocat', baseOpts)).rejects.toThrow(APIError)
   })
 
+  test('throws APIError on 403 quota exceeded', async () => {
+    mockFetch.mockResolvedValueOnce(
+      mockResponse(403, { error: 'contributor quota exceeded' })
+    )
+
+    try {
+      await fetchScore('octocat', baseOpts)
+      fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(APIError)
+      expect((e as APIError).status).toBe(403)
+      expect((e as APIError).message).toContain('contributor quota exceeded')
+    }
+  })
+
+  test('throws APIError on 403 account suspended', async () => {
+    mockFetch.mockResolvedValueOnce(
+      mockResponse(403, { error: 'account suspended' })
+    )
+
+    try {
+      await fetchScore('octocat', baseOpts)
+      fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(APIError)
+      expect((e as APIError).status).toBe(403)
+      expect((e as APIError).message).toContain('account suspended')
+    }
+  })
+
   test('throws APIError on 429', async () => {
     mockFetch.mockResolvedValueOnce(
-      mockResponse(429, { error: 'rate limited' })
+      mockResponse(429, { error: 'rate limit exceeded' })
     )
 
     try {

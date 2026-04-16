@@ -18,6 +18,7 @@ function makeScore(overrides: Partial<ScoreResponse> = {}): ScoreResponse {
       },
     },
     risk_summary: 'Established contributor with consistent activity history.',
+    scoring_mode: 'repo',
     scored_at: '2026-04-15T10:00:00Z',
     ...overrides,
   }

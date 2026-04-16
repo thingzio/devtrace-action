@@ -58,6 +58,14 @@ async function run(): Promise<void> {
           core.setFailed('Invalid DevTrace token')
           return
         }
+        if (err instanceof APIError && err.status === 403) {
+          core.setFailed(`DevTrace API rejected request: ${err.message}`)
+          return
+        }
+        if (err instanceof APIError && err.status === 429) {
+          core.setFailed(`DevTrace API rate limit exceeded: ${err.message}`)
+          return
+        }
         if (err instanceof APIError && err.status === 404) {
           results.push({ username, error: 'No score available' })
           continue
