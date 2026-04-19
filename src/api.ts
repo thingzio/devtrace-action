@@ -42,6 +42,16 @@ export interface ScoreResponse {
     author_association?: string
     trusted_org_member?: boolean
   }
+  license?: {
+    total_repos_with_merged_prs: number
+    own_repos: number
+    distribution: {
+      license: string
+      count: number
+      own: number
+      contributed: number
+    }[]
+  }
   ai_sensing?: {
     co_authored_commits: number
     bot_associated_prs: number

@@ -19,7 +19,10 @@
     "contributor-trust"
   ],
   "author": "thingzio",
-  "license": "Apache-2.0",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1"

@@ -1,5 +1,5 @@
 name: 'DevTrace PR Check'
-description: 'Score PR contributor trustworthiness using DevTrace'
+description: 'Evaluate pull request contributor trust and supply-chain risk using DevTrace reputation scoring'
 author: 'thingzio'
 
 inputs:
