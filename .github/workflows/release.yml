@@ -21,7 +21,7 @@ jobs:
       - name: Verify dist is clean
         run: git diff --exit-code dist/
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
       - name: Update major version tag
