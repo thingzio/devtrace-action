@@ -1,0 +1,19 @@
+name: DevTrace PR Check
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  pull-requests: write
+  checks: write
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: ./
+        with:
+          token: ${{ secrets.DEVTRACE_TOKEN }}
+          min-score: '0.7'
+          trusted-orgs: 'thingzio'
