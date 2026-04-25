@@ -151,8 +151,8 @@ async function upsertComment(
     per_page: 100,
   })
 
-  const existing = comments.data.find((c) =>
-    c.body?.includes(COMMENT_MARKER),
+  const existing = comments.data.find(
+    (c: { body?: string | null }) => c.body?.includes(COMMENT_MARKER),
   )
 
   if (existing) {
