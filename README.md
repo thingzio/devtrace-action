@@ -1,5 +1,6 @@
 # DevTrace GitHub Action
 
+[![DevTrace](https://github.com/thingzio/devtrace-action/actions/workflows/devtrace.yml/badge.svg)](https://github.com/thingzio/devtrace-action/actions/workflows/devtrace.yml)
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-DevTrace-blue.svg)](https://github.com/marketplace/actions/devtrace)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
