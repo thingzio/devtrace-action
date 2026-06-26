@@ -10,6 +10,20 @@
 
 Supply-chain attacks exploit contributor trust. DevTrace evaluates PR authors against 22+ signals across identity, engagement, community, and behavioral patterns — giving maintainers actionable context before code is merged.
 
+## Safe by Design
+
+This action **never checks out or executes pull request code**. It reads only PR and author *metadata* (the PR opener and commit author logins) via the GitHub API, then scores those usernames against the DevTrace API. Nothing from the PR diff — build scripts, `package.json`, test runners, `npm install` hooks — ever influences what code runs in the job.
+
+That property matters most when scoring **fork** pull requests, which is exactly where contributor trust is hardest to judge. To score forks you need repository secrets (the `DEVTRACE_TOKEN`), and plain `pull_request` withholds secrets from fork PRs. The usual answer is the `pull_request_target` trigger, whose well-known "pwn-request" danger is that it runs in the **base-repo context with secrets** — *if* the workflow then checks out and runs attacker-controlled PR code, that code inherits the secrets. The exposure comes entirely from executing untrusted code, not from the trigger.
+
+This action sidesteps that condition entirely:
+
+- **No checkout of PR code.** There is no `actions/checkout` step. The fork's tree is never materialized or run.
+- **No PR-controlled execution.** The only work is API calls keyed on the PR number and author logins GitHub provides.
+- **Bounded token scope.** Your `DEVTRACE_TOKEN` is a read-only scoring token, and `GITHUB_TOKEN` needs only `pull-requests: write` (plus `checks: write` when using `min-score`) — enough to post a comment, not to push code or change protected settings.
+
+So an attacker opening a fork PR cannot run any of their own code in this job, and handing it a secret under `pull_request_target` carries no more risk than a labeler or welcome-bot workflow.
+
 ## Quick Start
 
 ```yaml
@@ -75,6 +89,30 @@ Add **DevTrace Score** as a required status check in your branch protection rule
     min-score: '0.4'
 ```
 
+### Score pull requests from forks
+
+Repository secrets — including `DEVTRACE_TOKEN` — are not available to `pull_request`-triggered runs on fork PRs, so external contributors would never get scored. Use `pull_request_target` to score them. This is safe here because the action never checks out or runs PR code (see [Safe by Design](#safe-by-design)):
+
+```yaml
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: thingzio/devtrace-action@v1
+        with:
+          token: ${{ secrets.DEVTRACE_TOKEN }}
+```
+
+> Do **not** add an `actions/checkout` step (especially not one with `ref: ${{ github.event.pull_request.head.* }}`) alongside `pull_request_target` — that is what reintroduces the pwn-request risk this action otherwise avoids.
+
 ### Use outputs in a downstream step
 
 ```yaml
@@ -103,6 +141,8 @@ Bot accounts (score 0, grade F) are automatically excluded from threshold checks
 | `checks: write` | When `min-score` is set — to create check runs |
 
 The `github-token` input defaults to `${{ github.token }}`, so no manual configuration is needed. Your DevTrace `token` is only used for scoring API calls.
+
+For supply-chain hardening, pin the action to a full-length commit SHA (e.g. `thingzio/devtrace-action@<sha>`) rather than a tag, and let Dependabot's `github-actions` ecosystem propose updates. DevTrace PR Check is published on the GitHub Marketplace by a verified creator, so it satisfies org allowlists that require Marketplace-verified actions.
 
 ## License
 
