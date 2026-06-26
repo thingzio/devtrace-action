@@ -12,17 +12,9 @@ Supply-chain attacks exploit contributor trust. DevTrace evaluates PR authors ag
 
 ## Safe by Design
 
-This action **never checks out or executes pull request code**. It reads only PR and author *metadata* (the PR opener and commit author logins) via the GitHub API, then scores those usernames against the DevTrace API. Nothing from the PR diff — build scripts, `package.json`, test runners, `npm install` hooks — ever influences what code runs in the job.
+**This action never checks out or runs your pull request's code.** It only reads PR metadata — the author and commit logins — and scores those usernames against the DevTrace API. There's no `actions/checkout`, no build step, and nothing from the PR diff ever runs.
 
-That property matters most when scoring **fork** pull requests, which is exactly where contributor trust is hardest to judge. To score forks you need repository secrets (the `DEVTRACE_TOKEN`), and plain `pull_request` withholds secrets from fork PRs. The usual answer is the `pull_request_target` trigger, whose well-known "pwn-request" danger is that it runs in the **base-repo context with secrets** — *if* the workflow then checks out and runs attacker-controlled PR code, that code inherits the secrets. The exposure comes entirely from executing untrusted code, not from the trigger.
-
-This action sidesteps that condition entirely:
-
-- **No checkout of PR code.** There is no `actions/checkout` step. The fork's tree is never materialized or run.
-- **No PR-controlled execution.** The only work is API calls keyed on the PR number and author logins GitHub provides.
-- **Bounded token scope.** Your `DEVTRACE_TOKEN` is a read-only scoring token, and `GITHUB_TOKEN` needs only `pull-requests: write` (plus `checks: write` when using `min-score`) — enough to post a comment, not to push code or change protected settings.
-
-So an attacker opening a fork PR cannot run any of their own code in this job, and handing it a secret under `pull_request_target` carries no more risk than a labeler or welcome-bot workflow.
+That keeps the action's footprint small: it needs only `pull-requests: write` to post a comment, and your `DEVTRACE_TOKEN` is a read-only scoring token. It's also safe to use with `pull_request_target` to score [fork PRs](#score-pull-requests-from-forks), since the usual risk there comes from running untrusted code — which this action never does.
 
 ## Quick Start
 
