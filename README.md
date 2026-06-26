@@ -1,7 +1,7 @@
 # DevTrace GitHub Action
 
 [![DevTrace](https://github.com/thingzio/devtrace-action/actions/workflows/devtrace.yml/badge.svg)](https://github.com/thingzio/devtrace-action/actions/workflows/devtrace.yml)
-[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-DevTrace-blue.svg)](https://github.com/marketplace/actions/devtrace)
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-DevTrace_PR_Check-blue.svg)](https://github.com/marketplace/actions/devtrace-pr-check)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Automatically score pull request contributors for supply-chain risk using [DevTrace](https://devtrace.thingz.io).** Posts a trust score comment on every PR and optionally blocks merges from low-trust contributors.
