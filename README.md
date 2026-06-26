@@ -26,15 +26,12 @@ on:
 
 permissions:
   pull-requests: write
-  checks: write        # required when using min-score
 
 jobs:
   score:
     runs-on: ubuntu-latest
     steps:
       - uses: thingzio/devtrace-action@v1
-        with:
-          token: ${{ secrets.DEVTRACE_TOKEN }}
 ```
 
 Get your `DEVTRACE_TOKEN` at [devtrace.thingz.io/settings](https://devtrace.thingz.io/settings) (create an API token with the `dt_` prefix), then add it as a repository secret.
