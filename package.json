@@ -33,7 +33,7 @@
     "@vercel/ncc": "^0.44.1",
     "jest": "^30.4.2",
     "ts-jest": "^29.4.11",
-    "typescript": "^5.5.0"
+    "typescript": "^7.0.2"
   },
   "overrides": {
     "@babel/core": "^7.29.6",
